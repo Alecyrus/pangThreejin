@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="摘要在使用Python开发某些高并发WEB应用后台时，为了提高处理能力，通常会采用多进程或者多线程的方式，但这同时也给异常处理带了一些麻烦。   背景线程是一个轻型实体，只有由很少的支持其独立运行的资源。 对于Python，线程拥有自己独立的栈， 当线程运行出错，线程会直接结束运行，当需要进行错误处理时，一般都会在线程中进行处理，但是如果只能由主进程来处理异常，那么线程要怎么才能将异常通知给主进程">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="父进程如何捕获子进程的异常？">
+<meta property="og:url" content="http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/index.html">
+<meta property="og:site_name" content="pangThreejin">
+<meta property="og:description" content="摘要在使用Python开发某些高并发WEB应用后台时，为了提高处理能力，通常会采用多进程或者多线程的方式，但这同时也给异常处理带了一些麻烦。   背景线程是一个轻型实体，只有由很少的支持其独立运行的资源。 对于Python，线程拥有自己独立的栈， 当线程运行出错，线程会直接结束运行，当需要进行错误处理时，一般都会在线程中进行处理，但是如果只能由主进程来处理异常，那么线程要怎么才能将异常通知给主进程">
+<meta property="og:updated_time" content="2017-05-15T12:06:47.389Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="父进程如何捕获子进程的异常？">
+<meta name="twitter:description" content="摘要在使用Python开发某些高并发WEB应用后台时，为了提高处理能力，通常会采用多进程或者多线程的方式，但这同时也给异常处理带了一些麻烦。   背景线程是一个轻型实体，只有由很少的支持其独立运行的资源。 对于Python，线程拥有自己独立的栈， 当线程运行出错，线程会直接结束运行，当需要进行错误处理时，一般都会在线程中进行处理，但是如果只能由主进程来处理异常，那么线程要怎么才能将异常通知给主进程">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>父进程如何捕获子进程的异常？</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2016/09/20/扩展Compute节点/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2016/07/22/RPC中的具体细节/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&text=父进程如何捕获子进程的异常？"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&is_video=false&description=父进程如何捕获子进程的异常？"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=父进程如何捕获子进程的异常？&body=Check out this article: http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&name=父进程如何捕获子进程的异常？&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#摘要"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#背景"><span class="toc-number">2.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiprocessing-Package"><span class="toc-number">3.</span> <span class="toc-text">Multiprocessing Package</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调用error-callback函数"><span class="toc-number">4.</span> <span class="toc-text">调用error_callback函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#服务进程-Manager"><span class="toc-number">4.1.</span> <span class="toc-text">服务进程 Manager</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#检查线程退出状态"><span class="toc-number">5.</span> <span class="toc-text">检查线程退出状态</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        父进程如何捕获子进程的异常？
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">pangThreejin</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2016-08-15T12:01:59.000Z" itemprop="datePublished">2016-08-15</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Python/">Python</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>在使用Python开发某些高并发WEB应用后台时，为了提高处理能力，通常会采用多进程或者多线程的方式，但这同时也给异常处理带了一些麻烦。 </p>
+<hr>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>线程是一个轻型实体，只有由很少的支持其独立运行的资源。 对于Python，线程拥有自己独立的栈， 当线程运行出错，线程会直接结束运行，当需要进行错误处理时，一般都会在线程中进行处理，但是如果只能由主进程来处理异常，那么线程要怎么才能将异常通知给主进程呢？<br>对于进程，子进程的产生的异常如何让父进程去处理？</p>
+<hr>
+<h3 id="Multiprocessing-Package"><a href="#Multiprocessing-Package" class="headerlink" title="Multiprocessing Package"></a>Multiprocessing Package</h3><p><code>Multiprocessing</code>是Python的一个多进程库，其实现的API类似<code>threading</code>. 其子模块<code>dummy</code>实现了与<code>Multiprocessing.process</code>相同的API，唯一的区别在于，<code>dummy</code>其实只是对<code>threading</code>做了一层封装而已. 这给不知道是CPU密集型或者是IO密集型的项目提供了便利，你可以自由地在多进程与多线程之间进行切换而只需更改一行代码。</p>
+<hr>
+<h3 id="调用error-callback函数"><a href="#调用error-callback函数" class="headerlink" title="调用error_callback函数"></a>调用error_callback函数</h3><p>在python3中， <code>Multiprocessing</code>对与<code>apply_async()</code>进行了改进，增加了一个默认参数<code>error_callback=None</code>，在这里你可以指定相应的错误处理函数，它将在子进程或者子线程运行出现异常是被调用. 与之对应的是<code>callback=None</code>参数(Python2也支持)，它将在子进程或者子线程顺利运行之后被调用.<br>其原理，在于子线程或者子进程的一个<code>_success</code>属性， 其指出了运行状态.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, timeout=None)</span>:</span></div><div class="line">        self.wait(timeout)</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.ready():</div><div class="line">            <span class="keyword">raise</span> TimeoutError</div><div class="line">        <span class="keyword">if</span> self._success:</div><div class="line">            <span class="keyword">return</span> self._value</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span> self._value</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_set</span><span class="params">(self, i, obj)</span>:</span></div><div class="line">        self._success, self._value = obj</div><div class="line">        <span class="keyword">if</span> self._callback <span class="keyword">and</span> self._success:</div><div class="line">            self._callback(self._value)</div><div class="line">        <span class="keyword">if</span> self._error_callback <span class="keyword">and</span> <span class="keyword">not</span> self._success:</div><div class="line">            self._error_callback(self._value)</div><div class="line">        self._event.set()</div><div class="line">        <span class="keyword">del</span> self._cache[self._job]</div><div class="line">``` </div><div class="line">需要注意的是，`<span class="keyword">raise</span> self._value`语句抛出的是一个`Exception.AttributeError`,  可以看出只会抛出两种错误，一种是超时错误，一种是`AttributeError`. 而我们能利用的就是`AttributeError`, 在线程或者进程执行过程种出现错误， 我们只需要将合适的错误信息使用`格式化字符串`通过AttributeError传递出去，在`error_callback`去获取这个错误信息，在进行进一步的处理即可， 如果你只需要告知主进程出错了，那么只需要`<span class="keyword">raise</span> AttributeError`即可. </div><div class="line"></div><div class="line">---------------------</div><div class="line"><span class="comment">### 进程间数据共享</span></div><div class="line">不推荐`pipe`和`queue`，而它们都有可能堵塞进程，所以最好采用其他方式，这里介绍两种，共享内存变量，以及服务进程Manager. 你可以通过使用这两种方式在主进程中检测子线程或者子进程的状态. 至于访问速度，前者与和直接访问内存速度相差无几， 后者速度要低两个数量级</div><div class="line"><span class="comment">#### 共享内存变量 Shared  Ctypes Objects</span></div><div class="line">multi提供了两种类型，`Multiprocessing.Value`以及`MultiProcessing.Array`, 这两种结果内部实现了Lock，默认是开启的, 因此这时，它们是`process-safe`的. 共享内存变量在父进程中被创建，然后在创建子进程的时候传进去即可. </div><div class="line"></div><div class="line">官方文档示例代码：</div><div class="line">```python</div><div class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process, Lock</div><div class="line"><span class="keyword">from</span> multiprocessing.sharedctypes <span class="keyword">import</span> Value, Array</div><div class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> Structure, c_double</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span><span class="params">(Structure)</span>:</span></div><div class="line">    _fields_ = [(<span class="string">'x'</span>, c_double), (<span class="string">'y'</span>, c_double)]</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">modify</span><span class="params">(n, x, s, A)</span>:</span></div><div class="line">    n.value **= <span class="number">2</span></div><div class="line">    x.value **= <span class="number">2</span></div><div class="line">    s.value = s.value.upper()</div><div class="line">    <span class="keyword">for</span> a <span class="keyword">in</span> A:</div><div class="line">        a.x **= <span class="number">2</span></div><div class="line">        a.y **= <span class="number">2</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    lock = Lock()</div><div class="line"></div><div class="line">    n = Value(<span class="string">'i'</span>, <span class="number">7</span>)</div><div class="line">    x = Value(c_double, <span class="number">1.0</span>/<span class="number">3.0</span>, lock=<span class="keyword">False</span>)</div><div class="line">    s = Array(<span class="string">'c'</span>, <span class="string">b'hello world'</span>, lock=lock)</div><div class="line">    A = Array(Point, [(<span class="number">1.875</span>,<span class="number">-6.25</span>), (<span class="number">-5.75</span>,<span class="number">2.0</span>), (<span class="number">2.375</span>,<span class="number">9.5</span>)], lock=lock)</div><div class="line"></div><div class="line">    p = Process(target=modify, args=(n, x, s, A))</div><div class="line">    p.start()</div><div class="line">    p.join()</div><div class="line"></div><div class="line">    print(<span class="string">"Ounput:"</span>)</div><div class="line">    print(n.value)</div><div class="line">    print(x.value)</div><div class="line">    print(s.value)</div><div class="line">    print([(a.x, a.y) <span class="keyword">for</span> a <span class="keyword">in</span> A])</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>Output:<br>49<br>0.1111111111111111<br>HELLO WORLD<br>[(3.515625, 39.0625), (33.0625, 4.0), (5.640625, 90.25)]</p>
+</blockquote>
+<h4 id="服务进程-Manager"><a href="#服务进程-Manager" class="headerlink" title="服务进程 Manager"></a>服务进程 Manager</h4><p>如果你需要支持更多类型数据的共享呢？ Sever Process Manager 可以完成， 它支持很多数据类型，包括<code>list</code>, <code>dict</code>, <code>Namespace</code>, <code>Lock</code>, <code>RLock</code>, <code>Semaphore</code>, <code>BoundedSemaphore</code>, <code>Condition</code>, <code>Event</code>, <code>Queue</code>, <code>Value</code>和<code>Array</code>. 作为一个独立的服务进程存在，意味着可以远程共享数据，内部实现类似与RPC服务器，每个需要进行读写共享数据的进程，都需要通过proxies来访问服务进程进行操作. 一个Manager对象就控制一个用于管理共享数据的服务进程。由于访问是在网络之上进行的， 因此速度方面没有共享内存快.<br>Manager的<a href="https://docs.python.org/dev/library/multiprocessing.html#shared-ctypes-objects" target="_blank" rel="external">具体使用方法</a></p>
+<hr>
+<h3 id="检查线程退出状态"><a href="#检查线程退出状态" class="headerlink" title="检查线程退出状态"></a>检查线程退出状态</h3><p>由于线程出现异常退出和正常退出时的<code>exitcode</code>时不一样的，而线程结束运行后，内存又不会立即被回收，基于此，我们可以通过检查<code>exitcode</code>的方式来捕获线程中出现的错误，这种方法来自<a href="http://www.jianshu.com/p/e672152d6753" target="_blank" rel="external">PengMeng’s Blog</a>, 一般地，Python中进程的属性, 或许可以达到和<code>exitcode</code>相同的效果. 这里不再深入讨论.</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#摘要"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#背景"><span class="toc-number">2.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiprocessing-Package"><span class="toc-number">3.</span> <span class="toc-text">Multiprocessing Package</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调用error-callback函数"><span class="toc-number">4.</span> <span class="toc-text">调用error_callback函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#服务进程-Manager"><span class="toc-number">4.1.</span> <span class="toc-text">服务进程 Manager</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#检查线程退出状态"><span class="toc-number">5.</span> <span class="toc-text">检查线程退出状态</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&text=父进程如何捕获子进程的异常？"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&is_video=false&description=父进程如何捕获子进程的异常？"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=父进程如何捕获子进程的异常？&body=Check out this article: http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&title=父进程如何捕获子进程的异常？"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/08/15/父进程如何捕获子进程的异常？/&name=父进程如何捕获子进程的异常？&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2017 Alecyrus
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+<!-- Disqus Comments -->
+
+

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Archipel 是一个管理和监督虚拟机的开源解决方案。-&amp;gt;项目主页  -&amp;gt;GitHub地址    Archipel Agent　–即上图的Physical Hypervisor 安装在每台物理机上 Archipel Client　–即上图的Archipel GUI，安装在任意一台linux电脑上 ###一. Ejabberd XMPP 服务器端的配置安装 Archipel XMPP服">
+<meta name="keywords" content="Archipel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Archipel 安装与配置">
+<meta property="og:url" content="http://alecyrus.com/2016/01/26/安装与配置/index.html">
+<meta property="og:site_name" content="pangThreejin">
+<meta property="og:description" content="Archipel 是一个管理和监督虚拟机的开源解决方案。-&amp;gt;项目主页  -&amp;gt;GitHub地址    Archipel Agent　–即上图的Physical Hypervisor 安装在每台物理机上 Archipel Client　–即上图的Archipel GUI，安装在任意一台linux电脑上 ###一. Ejabberd XMPP 服务器端的配置安装 Archipel XMPP服">
+<meta property="og:image" content="https://camo.githubusercontent.com/18ac0e081edc75385b0ab4368455e2123961b6b6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f752f323636333535322f417263686970656c2532302d25323050726f64756374696f6e2f57696b692f4172636869746563747572652f7468756d626e61696c732f61726368692e706e67">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1113810-0d5a0c620f259122.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1113810-fa23335e07986c1b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1113810-791ee902e581d2d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1113810-aa4593d21dae1b1c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-05-15T12:14:49.908Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Archipel 安装与配置">
+<meta name="twitter:description" content="Archipel 是一个管理和监督虚拟机的开源解决方案。-&amp;gt;项目主页  -&amp;gt;GitHub地址    Archipel Agent　–即上图的Physical Hypervisor 安装在每台物理机上 Archipel Client　–即上图的Archipel GUI，安装在任意一台linux电脑上 ###一. Ejabberd XMPP 服务器端的配置安装 Archipel XMPP服">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/18ac0e081edc75385b0ab4368455e2123961b6b6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f752f323636333535322f417263686970656c2532302d25323050726f64756374696f6e2f57696b692f4172636869746563747572652f7468756d626e61696c732f61726368692e706e67">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Archipel 安装与配置</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2016/01/27/Archipel的使用/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/01/26/安装与配置/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/01/26/安装与配置/&text=Archipel 安装与配置"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/01/26/安装与配置/&is_video=false&description=Archipel 安装与配置"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Archipel 安装与配置&body=Check out this article: http://alecyrus.com/2016/01/26/安装与配置/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/01/26/安装与配置/&name=Archipel 安装与配置&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Archipel 安装与配置
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">pangThreejin</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2016-01-26T13:13:34.000Z" itemprop="datePublished">2016-01-26</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Archipel/">Archipel</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Archipel 是一个管理和监督虚拟机的开源解决方案。-&gt;<a href="http://archipelproject.org/" target="_blank" rel="external">项目主页</a>  -&gt;<a href="https://github.com/ArchipelProject/Archipel/wiki" target="_blank" rel="external">GitHub地址</a> </p>
+<p><img src="https://camo.githubusercontent.com/18ac0e081edc75385b0ab4368455e2123961b6b6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f752f323636333535322f417263686970656c2532302d25323050726f64756374696f6e2f57696b692f4172636869746563747572652f7468756d626e61696c732f61726368692e706e67" alt="Architecture"></p>
+<p> Archipel Agent　–即上图的Physical Hypervisor 安装在每台物理机上<br> Archipel Client　–即上图的Archipel GUI，安装在任意一台linux电脑上</p>
+<p>###一. Ejabberd XMPP 服务器端的配置安装</p>
+<p>Archipel</p>
+<p>XMPP服务器的域名就是本机的hostname, 我的hostname是　alecyrus.org , 这个可与通过命令” # hostname”得到，一般默认是ubuntu,　如果需要修改，可运行以下命令，别忘了之后在/etc/hosts 文件中，172.0.1.1 后在ubuntu后并列添加YourHostname，否则无法修改成功.</p>
+<pre><code># hostname YourHostname
+# echo YourHostname &gt; /etc/hostname
+</code></pre><p>1：安装ejabberd(至少15.04版本)</p>
+<pre><code># echo &quot;deb https://apt.jabber.at trusty ejabberd&quot; &gt; /etc/apt/sources.list.d/jabber.at.list
+# wget -qO- https://apt.jabber.at/gpg-key | apt-key add -
+# apt-get update
+# apt-get install ejabberd
+</code></pre><p>注：我是在ejabberd15.04版本下测试的，deb安装或者installer安装都行。两种方式安装后，打开关闭重启ejabberd服务的操作略有区别。具体查看<a href="docs.ejabberd.im/admin/guide/installation/">ejabberd官方文档</a>如果安装后使用命令开启ejabberd服务时报错，诸如Failed RPC connection… File Operate Error… 说明ejabberd安装出错，自行查看log解决。</p>
+<p>2：安装必需的依赖包(ArchipelAgent也需要安装这些依赖包)</p>
+<pre><code># apt-get install -y git  build-essential qemu-kvm libvirt-bin libvirt-dev python-setuptools python-numpy python-imaging python-apscheduler python-sqlalchemy python-libvirt subversion python-dev
+</code></pre><p>３：配置Ejabberd<br>    老版本是ejabberd.cfg, 现在的版本都是yaml配置文件(ejabberd.yml)。<br>   如下：</p>
+<pre><code>###
+###             ejabberd configuration file
+###         Archipel Sample default condiguration
+
+###     =========================================
+###     DEBUGGING
+
+
+loglevel: 4
+
+###     =========================================
+###     SERVED HOSTNAMES
+
+hosts:
+    - &quot;alecyrus.org&quot;
+
+###     =========================================
+###     LISTENING PORTS
+
+listen:
+-
+
+  port: 4560
+  module: ejabberd_xmlrpc
+  access_commands:
+        xmlrpcaccess:
+            all : []
+
+## ejabberd c2s
+-
+  port: 5222
+  module: ejabberd_c2s
+  max_stanza_size: 65536000
+  shaper: c2s_shaper
+  access: c2s
+
+## ejabbed s2s
+-
+  port: 5269
+  module: ejabberd_s2s_in
+  max_stanza_size: 65536000
+
+-
+  port: 5280
+  module: ejabberd_http
+  request_handlers:
+    &quot;/xmpp&quot;: ejabberd_http_ws
+  web_admin: true
+  http_bind: true
+
+###     ========================================
+###     S2S
+s2s_policy: s2s_access
+s2s_use_starttls: optional
+
+
+###     =========================================
+###     AUTHENTICATION
+
+auth_method: internal
+
+###     =========================================
+###     TRAFFIC SHAPERS
+
+shaper:
+  # in B/s
+  normal: 1000
+  fast: 50000000
+
+###     =========================================
+###     ACCESS CONTROL LISTS
+
+acl:
+admin:
+    user:
+        - &quot;admin&quot;: &quot;alecyrus.org&quot;
+local:
+    user_regexp: &quot;&quot;
+
+
+###     =========================================
+###     ACCESS RULES
+
+access:
+max_user_sessions:
+    all: 10
+local:
+    local: allow
+c2s:
+    blocked: deny
+    all: allow
+c2s_shaper:        
+    admin: none
+    all: fast
+s2s_shaper:
+    all: fast
+s2s_access:
+    all: allow
+announce:
+    admin: allow
+configure:
+    admin: allow
+muc_admin:
+    admin: allow
+muc_create:
+    local: allow
+muc:
+    all: allow
+pubsub_createnode:
+    all: allow
+register:
+    all: allow
+xmlrpcaccess:
+    admin : allow
+
+registration_timeout: infinity
+
+###     ========================================
+###     DEFAULT LANGUAGE
+
+language: &quot;en&quot;
+
+###     ========================================
+###     MODULES
+
+modules:
+  mod_admin_extra: []
+  mod_adhoc: []
+  mod_announce:
+    access: announce
+  mod_caps: []
+  mod_configure: []
+  mod_disco: []
+  mod_http_bind:
+    max_inactivity: 400 
+  mod_irc: []
+  mod_last: []
+  mod_muc:
+    access: muc
+    access_create: muc_create
+    access_persistent: muc_create
+    access_admin: muc_admin
+  mod_offline: []
+  mod_privacy: []
+  mod_private: []
+  mod_pubsub:
+    access_createnode: pubsub_createnode
+    ignore_pep_from_offline: true
+    last_item_cache: false
+    max_items_node: 1000
+    plugins:
+        - &quot;flat&quot;
+        - &quot;hometree&quot;
+        - &quot;pep&quot;
+  mod_register:
+    access: register
+  mod_roster: []
+  mod_shared_roster: []
+  mod_time: []
+  mod_vcard: []
+  mod_version: []
+</code></pre><p>然后重启ejabberd服务(DEB安装方式)，如果是installer安装，桌面上有俩快捷方式，若没有，进入ejabberd安装目录/bin/, 运行相关命令即可</p>
+<pre><code># /etc/init.d/ejabberd restart
+
+
+注：如果重启不成功，使用以下命令来查看启动服务过程中是哪里出问题，一般都是配置文档
+出错，语法，模块错误什么的。
+
+# ejabberdctl live
+</code></pre><p>4：ejabberd xmpp服务器admin账户的注册(DEB安装方式，若是install方式，在安装ejabberd时就创建好了)</p>
+<pre><code># ejabberdctl register admin alecyrus.org YourPassWd
+</code></pre><p>####二. Archipel Agent的配置安装<br>  Archipel Agent是需要安装在每台物理机上,物理机上的Virtual Machine Monitor 可以是KVM、Xen、VMware… ,以后如果需要把某台物理机上的全部KVM虚拟机添加到Archipel,那就需要在这台物理机上安装Archipel Agent.</p>
+<p>前提：能够正常创建虚拟机，qumu，kvm这些的安装好。</p>
+<p>１：下载Archipel以及安装</p>
+<pre><code># git clone https://github.com/ArchipelProject/Archipel.git
+# cd Archipel
+# ./pull.sh
+# easy_install apscheduler sqlalchemy numpy
+# cd ArchipelAgent
+# ./buildAgent -d
+# archipel-initinstall
+</code></pre><p>注：通常在archipel-initinstall加上 -x FQDN(# archipel-initinstall -x   alecyrus.org), 意思就是指定这台Physical Hypervisor将要连接的XMPP服务  器  的地址，如果你XMPP服务器和Physical Hypervisor安装在同一台机器上，比如现在，那么Physical Hypervisor 中Archipel的配置没问题，同一台机器，Physical Hypervisor 和XMPP服务器当然能够互相ping通。<br>  但是如果以后XMPP服务器配置好了，你想把其他的Physical Hypervisor 添加到XMPP服务器上让ArchipelClient一并管理，如果还是如此配置，那么这台Physical Hypervisor 就无法识别alecyrus.org, 所以在其他机器安装ArchipelAgent，别忘了在hosts文件中添加alecyrus.org 和XMPP服务器ip的映射。同时，保证XMPP服务器与Physical Hypervisor 能相互ping通。</p>
+<p>２：将这台Physical Hypervisor 的ArchipelAgent初始化到XMPP服务器，使用你的XMPP服务器的管理员账号。</p>
+<pre><code># archipel-tagnode -j admin@alecyrus.org -p  YourPassWD --create
+# archipel-rolesnode -j admin@alecyrus.org -p YourPassWD --create
+# archipel-adminaccounts -j admin@alecyrus.org -p YourPassWD --create
+</code></pre><p>3：配置Archipel Agent</p>
+<p>编辑/etc/archipel.conf, 添加以下内容</p>
+<pre><code>[MODULES]
+
+action_scheduler            = True
+centraldb                   = True
+geolocalization             = True
+hypervisor_health           = True
+hypervisor_network          = True
+hypervisor_vmcasts          = True
+iphone_notification         = False
+oomkiller                   = True
+snapshoting                 = True
+storage                     = True
+virtualmachine_appliance    = True
+vnc                         = True
+xmppserver                  = True
+vmparking                   = True  # needs centraldb to be     activated
+
+[CENTRALAGENT]
+# centralagent can be :
+#  - auto (default) : will be central agent if there is none already started
+#  - force : will be central agent (be careful to configure only one of your hypervisors this way)
+centralagent               = auto
+
+[VNC]
+vnc_certificate_file                        = None
+vnc_only_ssl                                = False
+vnc_enable_websocket_debug                  = True
+</code></pre><p>注：最后将machine_ip由auto改成这台hypervisor的ip地址，这样方便archipel查看ip地址。</p>
+<p>4:重启Archipel</p>
+<pre><code># /etc/init.d/archipel restart
+</code></pre><p>####三. Archipel Client安装　<br>  Archipel Client就是一个web应用，通过官方发布的The nightlies版本可以很方便的安装的，但经过测试(Ubuntu 14.04LTS)，项目作者把centralAgent也加入admin list后，centralAgent就无法正常安装了，bu<br>以下命令在之前clone命令的同级目录下进行，即开始这条命令时，ls命令可以可以看到之前的Archipel文件夹。</p>
+<pre><code># wget http://nightlies.archipelproject.org/latest-archipel-client.tar.gz
+# tar -xzf latest-archipel-client.tar.gz
+</code></pre><p>####四. 最后的工作</p>
+<p>进入Archipel目录开启HTTP服务</p>
+<p>  １：开启8000端口</p>
+<pre><code># python -m SimpleHTTPServer
+
+注:务必进入Archipel目录运行这个命令
+</code></pre><p>２：<br>    打开网址：localhost:8000<br><img src="http://upload-images.jianshu.io/upload_images/1113810-0d5a0c620f259122.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>登陆信息如上<br>然后添加安装了Archipel Agent的Physical Hypervisor　的JID…</p>
+<p>这个JID的格式可以在archipel.conf 中看到。。如下：</p>
+<p>我这里是alecyrus@%(xmpp_server)s，，也就是说JID为：<br>alecyrus@alecyrus.org<br><img src="http://upload-images.jianshu.io/upload_images/1113810-fa23335e07986c1b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1113810-791ee902e581d2d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="2016-01-18 02:04:30屏幕截图.png"></p>
+<p>添加完成后，就可以在这里看到你的物理机的虚拟机管理程序了，不过它变了样子</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1113810-aa4593d21dae1b1c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="2016-01-18 02:14:08屏幕截图.png"></p>
+<p>一个Physical Hypervisor就是你的一个联系人，这个联系人下面可以有很多的虚拟机，你也可以把虚拟机添加联系人中。</p>
+<p>Done！</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/01/26/安装与配置/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/01/26/安装与配置/&text=Archipel 安装与配置"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/01/26/安装与配置/&is_video=false&description=Archipel 安装与配置"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Archipel 安装与配置&body=Check out this article: http://alecyrus.com/2016/01/26/安装与配置/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/01/26/安装与配置/&title=Archipel 安装与配置"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/01/26/安装与配置/&name=Archipel 安装与配置&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2017 Alecyrus
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+<!-- Disqus Comments -->
+
+

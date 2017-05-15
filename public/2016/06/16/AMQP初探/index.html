@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="AMQP是什么 AMQP 全称为( Advanced Message Queuing Protocol), 它是一个跨平台的提供统一消息服务的应用层标准协议，它允许来自不同供应商的生产以及消费者之前的 相互通信，因此，基于AMQP协议开发的客户端与消息中间件之前的通信并不受供应商，开发语言等条件的限制。   基于AMQP协议的常见消息中间件有QPID、RabbitMQ、ActiveMQ等等。  基">
+<meta name="keywords" content="AMQP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AMQP初探">
+<meta property="og:url" content="http://alecyrus.com/2016/06/16/AMQP初探/index.html">
+<meta property="og:site_name" content="pangThreejin">
+<meta property="og:description" content="AMQP是什么 AMQP 全称为( Advanced Message Queuing Protocol), 它是一个跨平台的提供统一消息服务的应用层标准协议，它允许来自不同供应商的生产以及消费者之前的 相互通信，因此，基于AMQP协议开发的客户端与消息中间件之前的通信并不受供应商，开发语言等条件的限制。   基于AMQP协议的常见消息中间件有QPID、RabbitMQ、ActiveMQ等等。  基">
+<meta property="og:updated_time" content="2017-05-15T11:58:12.647Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AMQP初探">
+<meta name="twitter:description" content="AMQP是什么 AMQP 全称为( Advanced Message Queuing Protocol), 它是一个跨平台的提供统一消息服务的应用层标准协议，它允许来自不同供应商的生产以及消费者之前的 相互通信，因此，基于AMQP协议开发的客户端与消息中间件之前的通信并不受供应商，开发语言等条件的限制。   基于AMQP协议的常见消息中间件有QPID、RabbitMQ、ActiveMQ等等。  基">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>AMQP初探</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2016/07/22/RPC中的具体细节/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2016/05/01/RabbitMQ的RPC实现/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/06/16/AMQP初探/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/06/16/AMQP初探/&text=AMQP初探"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/06/16/AMQP初探/&is_video=false&description=AMQP初探"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=AMQP初探&body=Check out this article: http://alecyrus.com/2016/06/16/AMQP初探/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/06/16/AMQP初探/&name=AMQP初探&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#AMQP是什么"><span class="toc-number">1.</span> <span class="toc-text">AMQP是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">2.</span> <span class="toc-text">基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#生产者-Producer"><span class="toc-number">2.1.</span> <span class="toc-text">生产者 Producer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#交换机-Exchange"><span class="toc-number">2.2.</span> <span class="toc-text">交换机 Exchange</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#队列-Queue"><span class="toc-number">2.3.</span> <span class="toc-text">队列 Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者-Consumer"><span class="toc-number">2.4.</span> <span class="toc-text">消费者 Consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#路由键-Routing-key"><span class="toc-number">2.5.</span> <span class="toc-text">路由键 Routing_key</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绑定键-Binding-key"><span class="toc-number">2.6.</span> <span class="toc-text">绑定键 Binding_key</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#消息转发方式"><span class="toc-number">3.</span> <span class="toc-text">消息转发方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Direct型"><span class="toc-number">3.1.</span> <span class="toc-text">Direct型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fanout型"><span class="toc-number">3.2.</span> <span class="toc-text">Fanout型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic-型"><span class="toc-number">3.3.</span> <span class="toc-text">Topic 型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Header-型"><span class="toc-number">3.4.</span> <span class="toc-text">Header 型</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        AMQP初探
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">pangThreejin</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2016-06-16T11:57:21.000Z" itemprop="datePublished">2016-06-16</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/AMQP/">AMQP</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="AMQP是什么"><a href="#AMQP是什么" class="headerlink" title="AMQP是什么"></a>AMQP是什么</h2><p> AMQP 全称为( Advanced Message Queuing Protocol), 它是一个跨平台的提供统一消息服务的应用层标准协议，它允许来自不同供应商的生产以及消费者之前的 相互通信，因此，基于AMQP协议开发的客户端与消息中间件之前的通信并不受供应商，开发语言等条件的限制。 </p>
+<p> 基于AMQP协议的常见消息中间件有QPID、RabbitMQ、ActiveMQ等等。</p>
+<hr>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="生产者-Producer"><a href="#生产者-Producer" class="headerlink" title="生产者 Producer"></a>生产者 Producer</h3><p>产生消息，并将消息递交给Exchange</p>
+<h3 id="交换机-Exchange"><a href="#交换机-Exchange" class="headerlink" title="交换机 Exchange"></a>交换机 Exchange</h3><p>负责消息将正确地转发到相应的队列</p>
+<h3 id="队列-Queue"><a href="#队列-Queue" class="headerlink" title="队列 Queue"></a>队列 Queue</h3><p>存储消息的容器(队列)，先进先出</p>
+<h3 id="消费者-Consumer"><a href="#消费者-Consumer" class="headerlink" title="消费者 Consumer"></a>消费者 Consumer</h3><p>从队列中取出消息并进行处理</p>
+<h3 id="路由键-Routing-key"><a href="#路由键-Routing-key" class="headerlink" title="路由键 Routing_key"></a>路由键 <code>Routing_key</code></h3><p>在生产者将消息发送到Exchange时需要用到的参数。</p>
+<blockquote>
+<p>该参数说明了<strong>消息的属性</strong>，换言之，说明了该消息是什么类型的消息。</p>
+<h3 id="绑定键-Binding-key"><a href="#绑定键-Binding-key" class="headerlink" title="绑定键 Binding_key"></a>绑定键 <code>Binding_key</code></h3><p>在交换机将生产者递送来的消息转发到与此交换机绑定的队列时，需要用到的参数。<br>该参数说明了<strong>队列的属性</strong>，换言之，说明了该队列愿意接纳什么样类型的消息</p>
+</blockquote>
+<hr>
+<h2 id="消息转发方式"><a href="#消息转发方式" class="headerlink" title="消息转发方式"></a>消息转发方式</h2><p>取决于交换机的类型，如下：</p>
+<h3 id="Direct型"><a href="#Direct型" class="headerlink" title="Direct型"></a>Direct型</h3><p><code>单播型</code>： 在路由键和绑定键<strong>完全匹配</strong>的消息和队列之间建立转发通道</p>
+<h3 id="Fanout型"><a href="#Fanout型" class="headerlink" title="Fanout型"></a>Fanout型</h3><p><code>广播型</code>： 将消息和当前<strong>所有队列</strong>(和当前exchange建立绑定)之前建立转发通道</p>
+<h3 id="Topic-型"><a href="#Topic-型" class="headerlink" title="Topic 型"></a>Topic 型</h3><p><code>组播型</code> ： 路由键和绑定键是<strong>模糊匹配</strong>的，匹配规则如下：</p>
+<blockquote>
+<p>格式： <code>&lt;elem&gt;.&lt;color&gt;.&lt;specific&gt;</code></p>
+<p><code>*</code> : 匹配一个单词，表示该处必须有一个单词</p>
+<p> <code>#</code> : 匹配任意个单词，表示该处有没有单词都行</p>
+<p> 示例： 消息路由键为<code>*.color.#</code>将与队列绑定键为<code>parameter.color</code>或者<code>parameter.color.red</code>匹配 </p>
+</blockquote>
+<h3 id="Header-型"><a href="#Header-型" class="headerlink" title="Header 型"></a>Header 型</h3><blockquote>
+<p> Message是AMQP模型中所操纵的基本单位，它由Producer产生，经过Broker被Consumer所消费。它的基本结构有两部分: Header和Body。Header是由Producer添加上的各种属性的集合，这些属性有控制Message是否可被缓存，接收的queue是哪个，优先级是多少等。</p>
+</blockquote>
+<p>所以，对于RabbitMQ，由于routing_key以及其他一些参数，充当了消息头的角色，故，RabbitMq中并未实现header<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># send message</span></div><div class="line">message =  <span class="string">"Hello World!"</span></div><div class="line">channel.basic_publish(exchange=<span class="string">''</span>,</div><div class="line">                  routing_key=<span class="string">'color'</span>,</div><div class="line">                  body=message,</div><div class="line">                  properties=pika.BasicProperties(</div><div class="line">                     delivery_mode = <span class="number">2</span>, </div><div class="line">                      ))</div></pre></td></tr></table></figure></p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#AMQP是什么"><span class="toc-number">1.</span> <span class="toc-text">AMQP是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本概念"><span class="toc-number">2.</span> <span class="toc-text">基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#生产者-Producer"><span class="toc-number">2.1.</span> <span class="toc-text">生产者 Producer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#交换机-Exchange"><span class="toc-number">2.2.</span> <span class="toc-text">交换机 Exchange</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#队列-Queue"><span class="toc-number">2.3.</span> <span class="toc-text">队列 Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者-Consumer"><span class="toc-number">2.4.</span> <span class="toc-text">消费者 Consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#路由键-Routing-key"><span class="toc-number">2.5.</span> <span class="toc-text">路由键 Routing_key</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绑定键-Binding-key"><span class="toc-number">2.6.</span> <span class="toc-text">绑定键 Binding_key</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#消息转发方式"><span class="toc-number">3.</span> <span class="toc-text">消息转发方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Direct型"><span class="toc-number">3.1.</span> <span class="toc-text">Direct型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fanout型"><span class="toc-number">3.2.</span> <span class="toc-text">Fanout型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic-型"><span class="toc-number">3.3.</span> <span class="toc-text">Topic 型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Header-型"><span class="toc-number">3.4.</span> <span class="toc-text">Header 型</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/06/16/AMQP初探/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/06/16/AMQP初探/&text=AMQP初探"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/06/16/AMQP初探/&is_video=false&description=AMQP初探"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=AMQP初探&body=Check out this article: http://alecyrus.com/2016/06/16/AMQP初探/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/06/16/AMQP初探/&title=AMQP初探"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/06/16/AMQP初探/&name=AMQP初探&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2017 Alecyrus
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+<!-- Disqus Comments -->
+
+

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="问题背景：使用openstack dashboard 创建虚拟机时，有时创建虚拟机会出现如下错误  Error: Flavor’s disk is too small for requested image   这种情况是由于flavor的配置不够导致的，将flavor的配置弄好后，再次创建，出现以下错误： No Space Left To Write, 这是因为我只有一个compute1节点，而">
+<meta name="keywords" content="Linux,GuestFish">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Guestfish给虚拟磁盘扩容">
+<meta property="og:url" content="http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/index.html">
+<meta property="og:site_name" content="pangThreejin">
+<meta property="og:description" content="问题背景：使用openstack dashboard 创建虚拟机时，有时创建虚拟机会出现如下错误  Error: Flavor’s disk is too small for requested image   这种情况是由于flavor的配置不够导致的，将flavor的配置弄好后，再次创建，出现以下错误： No Space Left To Write, 这是因为我只有一个compute1节点，而">
+<meta property="og:updated_time" content="2017-05-15T12:18:03.364Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Guestfish给虚拟磁盘扩容">
+<meta name="twitter:description" content="问题背景：使用openstack dashboard 创建虚拟机时，有时创建虚拟机会出现如下错误  Error: Flavor’s disk is too small for requested image   这种情况是由于flavor的配置不够导致的，将flavor的配置弄好后，再次创建，出现以下错误： No Space Left To Write, 这是因为我只有一个compute1节点，而">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>使用Guestfish给虚拟磁盘扩容</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+</head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2016/12/03/Ubuntu镜像制作/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2016/09/20/扩展Compute节点/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&text=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&is_video=false&description=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=使用Guestfish给虚拟磁盘扩容&body=Check out this article: http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&name=使用Guestfish给虚拟磁盘扩容&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#问题背景："><span class="toc-number">1.</span> <span class="toc-text">问题背景：</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#DONE！"><span class="toc-number">1.1.</span> <span class="toc-text">DONE！</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        使用Guestfish给虚拟磁盘扩容
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">pangThreejin</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2016-10-11T12:09:51.000Z" itemprop="datePublished">2016-10-11</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/GuestFish/">GuestFish</a>, <a class="tag-link" href="/tags/Linux/">Linux</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h5 id="问题背景："><a href="#问题背景：" class="headerlink" title="问题背景："></a>问题背景：</h5><p>使用openstack dashboard 创建虚拟机时，有时创建虚拟机会出现如下错误</p>
+<blockquote>
+<p><strong>Error: Flavor’s disk is too small for requested image</strong></p>
+<p>  这种情况是由于flavor的配置不够导致的，将flavor的配置弄好后，再次创建，出现以下错误： <strong>No Space Left To Write</strong>, 这是因为我只有一个compute1节点，而且磁盘只有10G，但我创建的分配给实例的是20G。</p>
+</blockquote>
+<ul>
+<li>我们知道openstack的实例时创建在<strong>compute节点</strong>的<strong>/var/lib/nova/instances/</strong>里的，再挂载一块磁盘到这个目录显然不是一个很好的解决方式，最好是直接给compute节点的硬盘扩容，本文采用<strong>Guestfish</strong>给虚拟磁盘扩容。</li>
+</ul>
+<p>1.安装<strong>Guestfish</strong></p>
+<blockquote>
+<p>$ sudo apt-get install libguestfs-tools</p>
+</blockquote>
+<p>2.查看虚拟硬盘分区表</p>
+<blockquote>
+<p> $ sudo virt-filesystems –long –parts –blkdevs -h -a VM.img</p>
+<pre><code>Name       Type       MBR  Size   Parent
+/dev/sda1  partition  83   9.7G   /dev/sda
+/dev/sda2  partition  05   1.0K   /dev/sda
+/dev/sda5  partition  82   1022M  /dev/sda
+/dev/sda   device     -    11G    -   
+</code></pre><p>  那么，<strong>/dev/sda1</strong> 就是我们要扩容的分区</p>
+</blockquote>
+<p>3.创建一个更大的磁盘文件</p>
+<blockquote>
+<p>磁盘文件格式与之前的虚拟磁盘格式保持一致</p>
+<p>$ qemu-img create -f qcow2 new_disk.qcow2 50G </p>
+<pre><code>Formatting &apos;new_disk.qcow2&apos;, fmt=qcow2 size=53687091200 encryption=off 
+cluster_size=65536 lazy_refcounts=off
+</code></pre></blockquote>
+<p>4.使用guestfish中的virt-*命令进行扩容</p>
+<blockquote>
+<p>$ virt-resize –expand /dev/sda1 VM.img new_disk.qcow2 </p>
+<pre><code>Examining VM.img ...
+**********
+Summary of changes:
+/dev/sda1: This partition will be resized from 9.7G to 49.0G.  The 
+filesystem ext4 on /dev/sda1 will be expanded using the &apos;resize2fs&apos; 
+method.
+/dev/sda2: This partition will be left alone.
+**********  
+Setting up initial partition table on com.qcow2 ...
+Copying /dev/sda1 ...
+...
+$&lt;2&gt; 100% ⟦▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒⟧ 00:00
+Copying /dev/sda2 ...
+...
+$&lt;2&gt; 100% ⟦▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒⟧ 00:00
+Expanding /dev/sda1 using the &apos;resize2fs&apos; method ...
+Resize operation completed with no errors.  Before deleting the old disk,
+carefully check that the resized disk boots and works correctly.
+</code></pre></blockquote>
+<p>5.查看分区表</p>
+<blockquote>
+<p>$  sudo virt-filesystems –long –parts –blkdevs -h -a new_disk.qcow2</p>
+<pre><code>Name       Type       MBR  Size   Parent
+/dev/sda1  partition  83   49G    /dev/sda
+/dev/sda2  partition  05   1.0K   /dev/sda
+/dev/sda5  partition  82   1022M  /dev/sda
+/dev/sda   device     -    50G    -
+</code></pre><p>$ virt-filesystems –long –parts –blkdevs -h -a VM.img </p>
+<pre><code>Name       Type       MBR  Size   Parent
+/dev/sda1  partition  83   9.7G   /dev/sda
+/dev/sda2  partition  05   1.0K   /dev/sda
+/dev/sda5  partition  82   1022M  /dev/sda
+/dev/sda   device     -    11G    -
+</code></pre><p>此时，源磁盘VM.img里面的文件系统已经完整的被拷贝到new_disk.qcow2</p>
+</blockquote>
+<p> 5.删除源磁盘，并将new_disk.qcow2 改名为 VM.img</p>
+<blockquote>
+<p>$ sudo rm VM.img<br>$ sudo mv new_disk.qcow2 VM.img</p>
+</blockquote>
+<h6 id="DONE！"><a href="#DONE！" class="headerlink" title="DONE！"></a>DONE！</h6>
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#问题背景："><span class="toc-number">1.</span> <span class="toc-text">问题背景：</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#DONE！"><span class="toc-number">1.1.</span> <span class="toc-text">DONE！</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&text=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&is_video=false&description=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=使用Guestfish给虚拟磁盘扩容&body=Check out this article: http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&title=使用Guestfish给虚拟磁盘扩容"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://alecyrus.com/2016/10/11/使用Guestfish给虚拟磁盘扩容/&name=使用Guestfish给虚拟磁盘扩容&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2017 Alecyrus
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/Alecyrus">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+<!-- Disqus Comments -->
+
+

@@ -1,0 +1,23 @@
+[
+    {
+       "name":"Allegro",
+       "url":"https://github.com/Alecyrus/Allegro",
+       "desc":"The more efficient python backend integration framework"
+    },
+    {
+       "name":"Ares",
+       "url":"https://github.com/Alecyrus/Ares",
+       "desc":"A private cloud backend based on OpenStack Mitaka."
+    },
+    {
+       "name":"SpringX",
+       "url":"https://github.com/Alecyrus/SpringX",
+       "desc":"The web front-end for the simple private cloud."
+    },
+    {
+       "name":"Compiler",
+       "url":"https://github.com/Alecyrus/Compiler",
+       "desc":"A simple C compiler."
+    }
+
+]
